@@ -7,6 +7,12 @@ import { Routes } from './Routes';
 import { Features } from './shared/Features';
 import { Attribution } from './shared/Attribution';
 import { theme } from './theme';
+import { AuthProvider } from 'oidc-react';
+import { oidcConfig } from './oidc-config';
+
+if (process.env.NODE_ENV !== 'production') {
+  console.log('App!');
+}
 
 const App = () => {
   // TODO: Removed in future version.
@@ -21,12 +27,14 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <Header />
-        <Container maxWidth={'lg'}>
-          <Routes />
-          <Features />
-          <Attribution />
-        </Container>
+        <AuthProvider {...oidcConfig}>
+          <Header />
+          <Container maxWidth={'lg'}>
+            <Routes />
+            <Features />
+            <Attribution />
+          </Container>
+        </AuthProvider>
       </Router>
     </ThemeProvider>
   );

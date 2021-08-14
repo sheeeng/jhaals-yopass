@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useForm, UseFormMethods } from 'react-hook-form';
 import randomString, { encryptMessage, postSecret } from '../utils/utils';
-import { useState } from 'react';
 import Result from '../displaySecret/Result';
 import Expiration from './../shared/Expiration';
 import {
@@ -16,6 +15,8 @@ import {
   Box,
   InputLabel,
 } from '@material-ui/core';
+import { useAuth } from 'oidc-react';
+import React, { useState, useEffect } from 'react';
 
 const CreateSecret = () => {
   const { t } = useTranslation();
@@ -74,6 +75,30 @@ const CreateSecret = () => {
 
   const generateDecryptionKey = watch('generateDecryptionKey');
 
+  var auth = useAuth();
+
+  var isUserLoggedOut = !auth?.userData;
+
+  var username = auth?.userData?.profile?.username;
+  console.log(username);
+
+  var login = () => {
+    if (!auth) {
+      console.error('Unknown error.');
+      return;
+    }
+
+    var login = isUserLoggedOut ? auth.signIn : auth.signOut;
+
+    login().then(console.log).catch(console.error);
+  };
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(() => {
+    if (isUserLoggedOut) {
+      return login();
+    }
+  });
+
   if (result.uuid) {
     return (
       <Result
@@ -107,7 +132,7 @@ const CreateSecret = () => {
             autoFocus={true}
             onKeyDown={onKeyDown}
             placeholder={t('Message to encrypt locally in your browser')}
-            inputProps={{ spellCheck: 'false', ['data-gramm']: 'false' }}
+            inputProps={{ spellCheck: 'false', 'data-gramm': 'false' }}
           />
           <Grid container justifyContent="center" marginTop={2}>
             <Expiration control={control} />
@@ -180,7 +205,7 @@ export const SpecifyPasswordInput = (props: {
         inputProps={{
           autoComplete: 'off',
           spellCheck: 'false',
-          ['data-gramm']: 'false',
+          'data-gramm': 'false',
         }}
       />
     </Grid>
